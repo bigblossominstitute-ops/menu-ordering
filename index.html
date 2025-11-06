@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Big Blossom Restaurant - Online Menu</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
+    
+    <!-- Custom Styles (including theme) -->
+    <style>
+        /* Base font */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #fefcfb; /* A very light, warm off-white */
+        }
+        
+        /* Title font */
+        .font-title {
+            font-family: 'Playfair Display', serif;
+        }
+
+        /* Custom Theme Colors */
+        .bg-theme-red { background-color: #C51A1A; } /* Strong red */
+        .text-theme-red { color: #C51A1A; }
+        .border-theme-red { border-color: #C51A1A; }
+        
+        .bg-theme-yellow { background-color: #FBBF24; } /* Golden yellow */
+        .text-theme-yellow { color: #FBBF24; }
+        
+        .btn-primary {
+            @apply bg-theme-red text-white font-semibold py-2 px-6 rounded-full shadow-md transition-all duration-300 ease-in-out;
+        }
+        .btn-primary:hover {
+            @apply bg-red-700 shadow-lg transform -translate-y-0.5;
+        }
+        
+        .btn-secondary {
+            @apply bg-theme-yellow text-black font-semibold py-2 px-5 rounded-full shadow-md transition-all duration-300 ease-in-out;
+        }
+        .btn-secondary:hover {
+            @apply bg-amber-400 shadow-lg transform -translate-y-0.5;
+        }
+
+        .btn-neutral {
+            @apply bg-gray-200 text-gray-800 font-medium py-2 px-5 rounded-full transition-all duration-300 ease-in-out;
+        }
+        .btn-neutral:hover {
+            @apply bg-gray-300;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none; /* Hidden by default */
+            position: fixed;
+            z-index: 100;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.6); /* Dim background */
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+        }
+        .modal.show {
+            display: flex;
+            opacity: 1;
+        }
+        .modal-content {
+            background-color: #ffffff;
+            margin: auto;
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            transform: scale(0.95);
+            transition: transform 0.3s ease-in-out;
+        }
+        .modal.show .modal-content {
+            transform: scale(1);
+        }
+
+        /* Toast Notification */
+        #toast {
+            position: fixed;
+            bottom: -100px; /* Start off-screen */
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 12px 24px;
+            background-color: #2d3748; /* Dark gray */
+            color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            z-index: 200;
+            transition: bottom 0.5s ease-in-out;
+            font-weight: 500;
+        }
+        #toast.show {
+            bottom: 30px; /* Slide in */
+        }
+        
+        /* Cart Badge */
+        .cart-badge {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            min-width: 24px;
+            height: 24px;
+            font-size: 14px;
+            font-weight: 600;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: 2px solid white;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+
+    <div id="app-container" class="max-w-7xl mx-auto">
+
+        <!-- Header -->
+        <header class="sticky top-0 z-50 bg-white/90 backdrop-blur-md shadow-sm">
+            <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+                <!-- Restaurant Title -->
+                <div class="text-left">
+                    <h1 class="font-title text-theme-red text-3xl md:text-4xl font-bold">BIG BLOSSOM</h1>
+                    <p class="text-gray-600 text-sm md:text-base tracking-wide">THE ART OF DINING</p>
+                </div>
+                
+                <!-- Cart Button -->
+                <button id="open-cart-btn" class="relative p-2 rounded-full text-theme-red hover:bg-red-50 transition-colors">
+                    <!-- Cart Icon (SVG) -->
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
+                    <!-- Cart Count Badge -->
+                    <span id="cart-count-badge" class="cart-badge bg-theme-yellow text-black rounded-full">0</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Menu -->
+        <main id="menu-container" class="container mx-auto px-4 py-8">
+            <!-- Menu items will be dynamically injected here by JavaScript -->
+        </main>
+
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast">Item added to order!</div>
+
+    <!-- Modals -->
+
+    <!-- 1. Cart / Order Summary Modal -->
+    <div id="cart-modal" class="modal">
+        <div class="modal-content w-11/12 md:w-2/3 lg:max-w-2xl">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="font-title text-3xl text-theme-red">Your Order</h2>
+                <button id="close-cart-btn" class="text-gray-400 hover:text-gray-700">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            
+            <!-- Cart Items List -->
+            <div id="cart-items-list" class="mb-6 max-h-[40vh] overflow-y-auto pr-2">
+                <!-- Cart items will be dynamically injected here -->
+                <p class="text-gray-500">Your order is empty.</p>
+            </div>
+            
+            <!-- Order Summary -->
+            <div id="order-summary" class="border-t pt-4">
+                <!-- Summary details will be injected here -->
+            </div>
+            
+            <!-- Table Selection -->
+            <div id="table-selection" class="border-t pt-4 mt-4 hidden">
+                <label for="table-select" class="block text-lg font-semibold text-gray-800 mb-2">Select Your Table:</label>
+                <select id="table-select" class="block w-full p-3 border border-gray-300 rounded-lg bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-theme-red">
+                    <option value="">-- Please select your table number --</option>
+                    <option value="1">Table 1</option>
+                    <option value="2">Table 2</option>
+                    <option value="3">Table 3</option>
+                    <option value="4">Table 4</option>
+                    <option value="5">Table 5</option>
+                    <option value="6">Table 6</option>
+                </select>
+                <p id="table-error" class="text-red-600 text-sm mt-1 hidden">Please select a table to continue.</p>
+            </div>
+            
+            <!-- Actions -->
+            <div id="cart-actions" class="mt-8 flex justify-end space-x-4">
+                <button id="clear-cart-btn" class="btn-neutral">Clear Order</button>
+                <button id="confirm-order-btn" class="btn-primary">Confirm Order</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. Payment Modal -->
+    <div id="payment-modal" class="modal">
+        <div class="modal-content w-11/12 max-w-md">
+            <h2 class="font-title text-3xl text-theme-red mb-6 text-center">Complete Your Payment</h2>
+            <p class="text-gray-600 text-center mb-8">Please select a payment method to complete your order.</p>
+            
+            <div class="flex flex-col space-y-4">
+                <button class="payment-option-btn btn-primary w-full text-lg py-3">
+                    Pay with Cash
+                </button>
+                <button class="payment-option-btn btn-primary w-full text-lg py-3">
+                    Pay with Credit Card
+                </button>
+                <button class="payment-option-btn btn-primary w-full text-lg py-3">
+                    Pay with E-Wallet
+                </button>
+            </div>
+            
+            <div class="mt-8 text-center">
+                <button id="back-to-cart-btn" class="text-gray-500 hover:text-black font-medium">
+                    &larr; Back to Order
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. Confirmation Modal -->
+    <div id="confirmation-modal" class="modal">
+        <div class="modal-content w-11/12 max-w-md text-center">
+            <!-- Checkmark Icon (SVG) -->
+            <svg class="w-20 h-20 text-green-500 mx-auto mb-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            
+            <h2 class="font-title text-3xl text-gray-800 mb-4">Order Placed!</h2>
+            <p class="text-gray-600 text-lg mb-8">Thank you for your order! It has been received and is being prepared.</p>
+            
+            <div class="w-full flex flex-col space-y-3">
+                <button id="new-order-btn" class="btn-primary w-full text-lg py-3">
+                    Place Another Order
+                </button>
+                <button id="print-receipt-btn" class="btn-neutral w-full text-lg py-3">
+                    Print Receipt
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Main Application JavaScript -->
+    <script>
+        // --- DATA ---
+                // --- DATA ---
+        // Menu data transcribed from the image
+        const menuData = [
+            // Appetizers
+            { id: 1, name: "Egg Roll", description: "Spring roll, carrot, milk, egg", price: 100, category: "Appetizer", imageUrl: "https://static01.nyt.com/images/2024/01/10/multimedia/nd-egg-rolls-jgqc/nd-egg-rolls-jgqc-jumbo.jpg?quality=75&auto=webp" },
+            { id: 2, name: "Spring Roll", description: "Spring roll wrappers, Nappa cabbage, Bamboo Shoots", price: 180, category: "Appetizer", imageUrl: "https://olivia-yi.com/wp-content/uploads/2021/06/Shrimp-Spring-Rolls-with-Peanut-Sauce-763x1024.jpeg" },
+            { id: 3, name: "Chicken Wings", description: "Fried/Honey Braised/Sesame Chicken wings with blue dressing", price: 210, category: "Appetizer", imageUrl: "https://www.recipetineats.com/tachyon/2024/11/New-Oreleans-chicken-wings_1.jpg?resize=1200%2C1500&zoom=0.54" },
+            // Soup
+            { id: 4, name: "Asian Chicken Noodle Soup", description: "Boneless noodles, Chinses broccoli and bean sprouts", price: 100, category: "Soup", imageUrl: "https://iheartumami.com/wp-content/uploads/2020/11/Asian-Chicken-Noodle-Soup-Recipe-I-Heart-Umami-1024x1536.jpg" },
+            { id: 5, name: "BBQ Duck and Ramen Soup", description: "Ramen noodles, Chineses broccoli, BBQ Duck Thigh", price: 180, category: "Soup", imageUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR4JGg2UGoQdUBdagGBedl878jwIsjhbBkW3w&s" },
+            { id: 6, name: "Cantonese Chicken Corn Soup", description: "Sweet Corn, Tapiocs Flour, Shred Chicken", price: 210, category: "Soup", imageUrl: "https://www.recipetineats.com/tachyon/2014/06/Chinese-Chicken-Corn-Soup-2.jpg" },
+            // Salad
+            { id: 7, name: "Chef Salad", description: "Ham, Boiled eggs, Cheddar Cheese, Cucumber Lettuce, Thousand Island Dressing", price: 120, category: "Salad", imageUrl: "https://www.herwholesomekitchen.com/wp-content/uploads/2024/03/chef_salad-1-2.jpg" },
+            { id: 8, name: "Mixed Salad", description: "Pear, Avocado, Cucumber, Spring Onions, Lemon Juice", price: 180, category: "Salad", imageUrl: "https://cdn.loveandlemons.com/wp-content/uploads/2021/04/green-salad-1.jpg" },
+            { id: 9, name: "Caesar Salad", description: "Pine nuts, Caesar Dressing, Lettuce, Parmesan Cheese", price: 210, category: "Salad", imageUrl: "https://cdn.loveandlemons.com/wp-content/uploads/2024/12/caesar-salad.jpg" },
+            // Main Course
+            { id: 10, name: "Tangerine Beef", description: "Marinated Beef tossed in Spicy Tangerine Sauce", price: 250, category: "Main Course", imageUrl: "https://img.tastelife.tv/assets/uploads/2022/04/Famous_Sichuan_Style_Beef_Jerky_Chef_Chen_01937_10x7-684x480.jpeg" },
+            { id: 11, name: "Roasted Pork Loin", description: "Marinated Pork Loin in different spices and roost", price: 280, category: "Main Course", imageUrl: "https://pork.com.au/wp-content/uploads/sites/2/2018/10/loin-2400-x-1800.jpg" },
+            { id: 12, name: "Chicken Cordon Bleu", description: "Fillet Chicken breast stuffed with ham and cheese then deep fry", price: 250, category: "Main Course", imageUrl: "https://www.recipetineats.com/uploads/2015/10/Easy-Chicken-Cordon-Bleu-2.jpg" },
+            { id: 13, name: "Beef Teriyaki", description: "Marinated Beef with honey, sesame oil and stir fry", price: 230, category: "Main Course", imageUrl: "https://www.fromvalerieskitchen.com/wordpress/wp-content/uploads/2022/08/Grilled-Teriyaki-Steak-25.jpg" },
+            // Dessert
+            { id: 14, name: "Ala Tiramisu", description: "Chocoate, Msscarpone Cheese, Berries", price: 130, category: "Dessert", imageUrl: "https://www.marcellinaincucina.com/wp-content/uploads/2019/11/Tiramisu-blog-portrait-2.jpg" },
+            { id: 15, name: "Mango Charlotte", description: "Cream cheese, Sour cream, Mango", price: 180, category: "Dessert", imageUrl: "https://tipbuzz.com/wp-content/uploads/Mango-Charlotte-Cake-1-2.jpg" },
+            { id: 16, name: "Black Forest", description: "Dark Chocolate Syrup, Cherries Chocolate Cake", price: 190, category: "Dessert", imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/66/Black_Forest_gateau.jpg/1200px-Black_Forest_gateau.jpg" }
+        ];
+
+        // --- STATE ---
+        // This holds the items in the order
+        let cart = [];
+        let lastOrder = null; // To store the order for printing
+        let selectedTable = null; // To store the selected table number
+        const TAX_RATE = 0.12; // 12% tax
+
+        // --- SELECTORS ---
+        const menuContainer = document.getElementById('menu-container');
+        const cartModal = document.getElementById('cart-modal');
+        const paymentModal = document.getElementById('payment-modal');
+        const confirmationModal = document.getElementById('confirmation-modal');
+        const cartCountBadge = document.getElementById('cart-count-badge');
+        const cartItemsList = document.getElementById('cart-items-list');
+        const orderSummary = document.getElementById('order-summary');
+        const toast = document.getElementById('toast');
+        const cartActions = document.getElementById('cart-actions');
+        const tableSelect = document.getElementById('table-select');
+        const tableSelectionDiv = document.getElementById('table-selection');
+        const tableError = document.getElementById('table-error');
+        
+        // --- FUNCTIONS ---
+
+        /**
+         * Formats a number as PHP currency
+         */
+        function formatCurrency(amount) {
+            return `Php ${amount.toFixed(2)}`;
+        }
+
+        /**
+         * Renders the entire menu on the page, grouped by category
+         */
+        function renderMenu() {
+            // Get unique categories
+            const categories = [...new Set(menuData.map(item => item.category))];
+            
+            let menuHTML = "";
+            
+            categories.forEach(category => {
+                // Filter items for this category
+                const itemsInCategory = menuData.filter(item => item.category === category);
+                
+                // Start category section
+                menuHTML += `
+                    <section class="mb-12">
+                        <h2 class="font-title text-3xl md:text-4xl text-theme-red font-bold mb-6 pb-2 border-b-2 border-theme-yellow">${category}</h2>
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                `;
+                
+                // Add cards for each item
+                itemsInCategory.forEach(item => {
+                    menuHTML += `
+                        <div class="bg-white rounded-xl shadow-lg overflow-hidden flex flex-col transition-all duration-300 hover:shadow-2xl">
+                            <!-- Menu item image -->
+                            <img 
+                                src="${item.imageUrl}" 
+                                alt="${item.name}" 
+                                class="h-48 w-full object-cover" 
+                                loading="lazy"
+                                onerror="this.src='https://placehold.co/400x300/fefcfb/c51a1a?text=Big+Blossom';"
+                            >
+                            <div class="p-5 flex flex-col flex-grow">
+                                <div class="flex-grow">
+                                    <h3 class="text-xl font-bold text-gray-900 mb-1">${item.name}</h3>
+                                    <p class="text-gray-600 text-sm mb-3">${item.description}</p>
+                                </div>
+                                <div class="flex justify-between items-center mt-4">
+                                    <span class="text-xl font-semibold text-theme-red">${formatCurrency(item.price)}</span>
+                                    <button 
+                                        class="btn-secondary text-sm add-to-cart-btn"
+                                        data-id="${item.id}"
+                                        data-name="${item.name}"
+                                        data-price="${item.price}"
+                                    >
+                                        Add to Order
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                // End category section
+                menuHTML += `
+                        </div>
+                    </section>
+                `;
+            });
+            
+            menuContainer.innerHTML = menuHTML;
+        }
+
+        /**
+         * Adds an item to the cart or increments its quantity
+         */
+        function addToCart(id, name, price) {
+            const numericId = parseInt(id);
+            const numericPrice = parseFloat(price);
+            
+            const existingItem = cart.find(item => item.id === numericId);
+            
+            if (existingItem) {
+                existingItem.quantity++;
+            } else {
+                cart.push({ id: numericId, name: name, price: numericPrice, quantity: 1 });
+            }
+            
+            updateCart();
+            showToast(`Added ${name} to order!`);
+        }
+        
+        /**
+         * Updates the cart badge count and re-renders the cart modal
+         */
+        function updateCart() {
+            renderCartModal();
+            updateCartBadge();
+        }
+
+        /**
+         * Updates the cart item count badge in the header
+         */
+        function updateCartBadge() {
+            const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+            cartCountBadge.textContent = totalItems;
+            
+            if (totalItems > 0) {
+                cartCountBadge.classList.remove('hidden');
+            } else {
+                cartCountBadge.classList.add('hidden');
+            }
+        }
+
+        /**
+         * Renders the list of items and totals inside the cart modal
+         */
+        function renderCartModal() {
+            if (cart.length === 0) {
+                cartItemsList.innerHTML = `<p class="text-gray-500 text-center py-4">Your order is empty.</p>`;
+                orderSummary.innerHTML = "";
+                cartActions.classList.add('hidden');
+                tableSelectionDiv.classList.add('hidden'); // Hide table selection
+                return;
+            }
+            
+            cartActions.classList.remove('hidden');
+            tableSelectionDiv.classList.remove('hidden'); // Show table selection
+            tableError.classList.add('hidden'); // Hide error on render
+            tableSelect.value = selectedTable || ""; // Restore selected value
+
+            let itemsHTML = "";
+            let subtotal = 0;
+
+            cart.forEach(item => {
+                const itemTotal = item.price * item.quantity;
+                subtotal += itemTotal;
+                
+                itemsHTML += `
+                    <div class="flex items-center justify-between py-4 border-b">
+                        <div class="flex-grow">
+                            <p class="font-semibold text-gray-800">${item.name}</p>
+                            <p class="text-sm text-gray-500">${formatCurrency(item.price)} each</p>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <button class="qty-change-btn rounded-full w-7 h-7 flex items-center justify-center bg-gray-200 hover:bg-gray-300" data-id="${item.id}" data-change="-1">-</button>
+                            <span class="font-medium w-6 text-center">${item.quantity}</span>
+                            <button class="qty-change-btn rounded-full w-7 h-7 flex items-center justify-center bg-gray-200 hover:bg-gray-300" data-id="${item.id}" data-change="1">+</button>
+                        </div>
+                        <div class="w-20 text-right font-semibold">
+                            ${formatCurrency(itemTotal)}
+                        </div>
+                        <button class="remove-item-btn text-red-400 hover:text-red-600 ml-4" data-id="${item.id}">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                              <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                        </button>
+                    </div>
+                `;
+            });
+
+            cartItemsList.innerHTML = itemsHTML;
+
+            // Calculate totals
+            const tax = subtotal * TAX_RATE;
+            const total = subtotal + tax;
+
+            orderSummary.innerHTML = `
+                <div class="space-y-2 text-right">
+                    <div class="flex justify-between text-lg">
+                        <span class="text-gray-600">Subtotal:</span>
+                        <span class="font-semibold">${formatCurrency(subtotal)}</span>
+                    </div>
+                    <div class="flex justify-between text-lg">
+                        <span class="text-gray-600">Tax (12%):</span>
+                        <span class="font-semibold">${formatCurrency(tax)}</span>
+                    </div>
+                    <div class="flex justify-between text-2xl font-bold text-theme-red mt-2">
+                        <span>Total:</span>
+                        <span>${formatCurrency(total)}</span>
+                    </div>
+                </div>
+            `;
+        }
+
+        /**
+         * Changes the quantity of an item in the cart
+         */
+        function changeQuantity(id, change) {
+            const numericId = parseInt(id);
+            const changeAmount = parseInt(change);
+            const item = cart.find(item => item.id === numericId);
+
+            if (item) {
+                item.quantity += changeAmount;
+                if (item.quantity <= 0) {
+                    // Remove item if quantity is 0 or less
+                    cart = cart.filter(cartItem => cartItem.id !== numericId);
+                }
+            }
+            updateCart();
+        }
+
+        /**
+         * Removes an item from the cart completely
+         */
+        function removeFromCart(id) {
+            const numericId = parseInt(id);
+            cart = cart.filter(item => item.id !== numericId);
+            updateCart();
+            showToast("Item removed from order.");
+        }
+        
+        /**
+         * Clears the entire cart
+         */
+        function clearCart() {
+            cart = [];
+            updateCart();
+            showToast("Order cleared.");
+        }
+
+        /**
+         * Resets the entire app to the start
+         */
+        function startNewOrder() {
+            cart = [];
+            lastOrder = null; // Clear the last order
+            selectedTable = null; // Clear selected table
+            tableSelect.value = ""; // Reset dropdown
+            updateCart();
+            toggleModal('confirmation-modal', false);
+        }
+        
+        /**
+         * Saves the order, shows confirmation
+         */
+        function handlePayment(method) {
+            console.log("Payment processed with:", method); // For training log
+            
+            // Save the order details *before* clearing the cart
+            const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            const tax = subtotal * TAX_RATE;
+            const total = subtotal + tax;
+            
+            // Deep copy the cart items
+            lastOrder = {
+                items: JSON.parse(JSON.stringify(cart)),
+                subtotal: subtotal,
+                tax: tax,
+                total: total,
+                table: selectedTable // Add the selected table
+            };
+            
+            toggleModal('payment-modal', false);
+            toggleModal('confirmation-modal', true);
+            // Note: The cart is now cleared by startNewOrder()
+        }
+
+        /**
+         * Shows or hides a modal
+         */
+        function toggleModal(modalId, show) {
+            const modal = document.getElementById(modalId);
+            if (show) {
+                modal.classList.add('show');
+            } else {
+                modal.classList.remove('show');
+            }
+        }
+        
+        /**
+         * Shows a toast notification message
+         */
+        function showToast(message) {
+            toast.textContent = message;
+            toast.classList.add('show');
+            
+            // Hide toast after 3 seconds
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+        
+        /**
+         * Generates receipt HTML and opens print dialog
+         */
+        function printReceipt() {
+            if (!lastOrder || lastOrder.items.length === 0) {
+                showToast("No order details to print.");
+                return;
+            }
+
+            const { items, subtotal, tax, total, table } = lastOrder;
+            const now = new Date();
+            const formattedDate = now.toLocaleDateString("en-US", {
+                year: 'numeric', month: 'short', day: 'numeric'
+            });
+            const formattedTime = now.toLocaleTimeString("en-US", {
+                hour: '2-digit', minute: '2-digit'
+            });
+
+            let receiptHTML = `
+                <html>
+                <head>
+                    <title>Receipt</title>
+                    <style>
+                        body {
+                            font-family: 'Courier New', Courier, monospace;
+                            width: 300px; /* Standard thermal printer width */
+                            margin: 0 auto;
+                            padding: 10px;
+                            font-size: 14px;
+                            color: #000;
+                        }
+                        .text-center { text-align: center; }
+                        .text-right { text-align: right; }
+                        h1 {
+                            font-family: 'Arial', sans-serif;
+                            font-size: 1.2rem;
+                            margin: 10px 0;
+                        }
+                        p { margin: 5px 0; }
+                        table {
+                            width: 100%;
+                            border-collapse: collapse;
+                        }
+                        th, td {
+                            padding: 5px 0;
+                        }
+                        .item-name {
+                            text-align: left;
+                        }
+                        .item-qty {
+                            text-align: center;
+                        }
+                        .item-total {
+                            text-align: right;
+                        }
+                        .totals-line {
+                            border-top: 1px dashed #000;
+                            padding-top: 5px;
+                            font-weight: bold;
+                        }
+                        .totals-label {
+                            text-align: left;
+                        }
+                        .totals-value {
+                            text-align: right;
+                        }
+                        .divider {
+                            border-top: 1px dashed #000;
+                            margin: 10px 0;
+                        }
+                        @media print {
+                            /* Hide print dialog headers/footers */
+                            @page { margin: 0; }
+                            body { margin: 0.5cm; }
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="text-center">
+                        <h1>BIG BLOSSOM</h1>
+                        <p>THE ART OF DINING</p>
+                        <p>Order Receipt</p>
+                        <p>${formattedDate} - ${formattedTime}</p>
+                        <p style="font-weight: bold; font-size: 1.1em; margin-top: 5px;">TABLE #: ${table}</p>
+                    </div>
+                    
+                    <div class="divider"></div>
+                    
+                    <table>
+                        <thead>
+                            <tr>
+                                <th class="item-name">Item</th>
+                                <th class="item-qty">Qty</th>
+                                <th class="item-total">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            `;
+
+            items.forEach(item => {
+                receiptHTML += `
+                    <tr>
+                        <td class="item-name">${item.name}</td>
+                        <td class="item-qty">${item.quantity}</td>
+                        <td class="item-total">${formatCurrency(item.price * item.quantity).replace('Php ', '')}</td>
+                    </tr>
+                `;
+            });
+
+            receiptHTML += `
+                        </tbody>
+                    </table>
+                    
+                    <div class="divider"></div>
+                    
+                    <table>
+                        <tbody>
+                            <tr>
+                                <td class="totals-label">Subtotal:</td>
+                                <td class="totals-value">${formatCurrency(subtotal).replace('Php ', '')}</td>
+                            </tr>
+                            <tr>
+                                <td class="totals-label">Tax (12%):</td>
+                                <td class="totals-value">${formatCurrency(tax).replace('Php ', '')}</td>
+                            </tr>
+                            <tr class="totals-line">
+                                <td class="totals-label">TOTAL:</td>
+                                <td class="totals-value">${formatCurrency(total).replace('Php ', '')}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    
+                    <div class="divider"></div>
+                    
+                    <p class="text-center">Thank you for your order!</p>
+                    
+                </body>
+                </html>
+            `;
+
+            // Open a new window, write the HTML, and trigger print
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(receiptHTML);
+            printWindow.document.close(); // Important for some browsers
+            printWindow.focus(); // Important for some browsers
+            
+            // Use setTimeout to ensure content is loaded before printing
+            setTimeout(() => {
+                printWindow.print();
+                printWindow.close();
+            }, 250); 
+        }
+
+        // --- EVENT LISTENERS ---
+        
+        // Run when the page is fully loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            renderMenu();
+            updateCartBadge(); // Initialize badge (should be 0)
+
+            // --- Menu Item Clicks ---
+            menuContainer.addEventListener('click', (e) => {
+                const button = e.target.closest('.add-to-cart-btn');
+                if (button) {
+                    const { id, name, price } = button.dataset;
+                    addToCart(id, name, price);
+                }
+            });
+            
+            // --- Cart Modal Clicks ---
+            cartItemsList.addEventListener('click', (e) => {
+                const qtyButton = e.target.closest('.qty-change-btn');
+                const removeButton = e.target.closest('.remove-item-btn');
+                
+                if (qtyButton) {
+                    const { id, change } = qtyButton.dataset;
+                    changeQuantity(id, change);
+                }
+                
+                if (removeButton) {
+                    const { id } = removeButton.dataset;
+                    removeFromCart(id);
+                }
+            });
+
+            // --- Header Cart Button ---
+            document.getElementById('open-cart-btn').addEventListener('click', () => {
+                toggleModal('cart-modal', true);
+            });
+
+            // --- Cart Modal Buttons ---
+            document.getElementById('close-cart-btn').addEventListener('click', () => {
+                toggleModal('cart-modal', false);
+            });
+            
+            document.getElementById('clear-cart-btn').addEventListener('click', () => {
+                clearCart();
+            });
+
+            document.getElementById('confirm-order-btn').addEventListener('click', () => {
+                if (cart.length === 0) {
+                    showToast("Your cart is empty.");
+                    return;
+                }
+                
+                // VALIDATE table selection
+                selectedTable = tableSelect.value;
+                if (!selectedTable) {
+                    tableError.classList.remove('hidden');
+                    showToast("Please select your table number.");
+                    return;
+                }
+                
+                // If validation passes
+                tableError.classList.add('hidden');
+                toggleModal('cart-modal', false);
+                toggleModal('payment-modal', true);
+            });
+            
+            // --- Payment Modal Buttons ---
+            document.getElementById('back-to-cart-btn').addEventListener('click', () => {
+                toggleModal('payment-modal', false);
+                toggleModal('cart-modal', true);
+            });
+            
+            document.querySelectorAll('.payment-option-btn').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    handlePayment(e.target.textContent.trim());
+                });
+            });
+            
+            // --- Confirmation Modal Button ---
+            document.getElementById('new-order-btn').addEventListener('click', () => {
+                startNewOrder();
+            });
+            
+            document.getElementById('print-receipt-btn').addEventListener('click', printReceipt);
+
+            // --- Table Select Listener ---
+            tableSelect.addEventListener('change', () => {
+                selectedTable = tableSelect.value;
+                if (selectedTable) {
+                    tableError.classList.add('hidden');
+                }
+            });
+
+            // Close modals if clicking on the background overlay
+            [cartModal, paymentModal, confirmationModal].forEach(modal => {
+                modal.addEventListener('click', (e) => {
+                    if (e.target === modal) {
+                        toggleModal(modal.id, false);
+                    }
+                });
+            });
+        });
+
+    </script>
+</body>
+</html>
